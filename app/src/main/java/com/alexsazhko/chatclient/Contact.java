@@ -1,15 +1,31 @@
 package com.alexsazhko.chatclient;
 
-import android.graphics.Bitmap;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-public class Contact {
+import com.alexsazhko.chatclient.entity.ChatMessage;
 
+import java.util.ArrayList;
+import java.util.List;
+
+public class Contact implements Parcelable {
+    private int id;
     private String name = null;
     private boolean isConnected = false;
-    private Bitmap bmpPicture = null;
+    private String pictureName;
+    private List<ChatMessage> messagesList;
 
-    public Contact(String name){
+    public Contact(int id, String name){
         this.name = name;
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -28,4 +44,64 @@ public class Contact {
         this.isConnected = isConnected;
     }
 
+    public String getPictureName() {
+        return pictureName;
+    }
+
+    public void setPictureName(String pictureName) {
+        this.pictureName = pictureName;
+    }
+
+    public List<ChatMessage> getMessagesList() {
+        return messagesList;
+    }
+
+    public void setMessagesList(List<ChatMessage> messagesList) {
+        this.messagesList = messagesList;
+    }
+
+    protected Contact(Parcel in) {
+        id = in.readInt();
+        name = in.readString();
+        isConnected = in.readByte() != 0x00;
+        pictureName = in.readString();
+        if (in.readByte() == 0x01) {
+            messagesList = new ArrayList<ChatMessage>();
+            in.readList(messagesList, ChatMessage.class.getClassLoader());
+        } else {
+            messagesList = null;
+        }
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeString(name);
+        dest.writeByte((byte) (isConnected ? 0x01 : 0x00));
+        dest.writeString(pictureName);
+        if (messagesList == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeList(messagesList);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<Contact> CREATOR = new Parcelable.Creator<Contact>() {
+        @Override
+        public Contact createFromParcel(Parcel in) {
+            return new Contact(in);
+        }
+
+        @Override
+        public Contact[] newArray(int size) {
+            return new Contact[size];
+        }
+    };
 }
