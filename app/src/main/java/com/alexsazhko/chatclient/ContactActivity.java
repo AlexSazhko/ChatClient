@@ -6,22 +6,28 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.internal.widget.AdapterViewCompat;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.alexsazhko.chatclient.adapter.ContactListAdapter;
+import com.alexsazhko.chatclient.entity.Contact;
+
 import java.util.ArrayList;
 
 public class ContactActivity extends AppCompatActivity {
 
+    //final int REQUEST_CODE_ADD_CONVERS = 1;
+
     Context context;
     private String name;
     private ListView lvContactList;
-    private ContactAdapter contactAdapter;
+    private ContactListAdapter contactAdapter;
     private ArrayList<Contact> contacts;
+    private int contactPosition;
 
 
     @Override
@@ -59,7 +65,7 @@ public class ContactActivity extends AppCompatActivity {
     }
 
     private void initAdapter() {
-        contactAdapter = new ContactAdapter(contacts, context);
+        contactAdapter = new ContactListAdapter(contacts, context);
         lvContactList.setAdapter(contactAdapter);
     }
 
@@ -88,10 +94,21 @@ public class ContactActivity extends AppCompatActivity {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             Contact contact = contacts.get(position);
+            contactPosition = position;
             Intent intent = new Intent(ContactActivity.this, ChatRoomActivity.class);
             intent.putExtra("userName", name);
             intent.putExtra("contact", contact);
-            startActivity(intent);
+            startActivityForResult(intent, contactPosition);
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(resultCode == RESULT_OK) {
+            Contact contactRequest = (Contact)data.getExtras().getParcelable("contact");
+            contacts.get(requestCode).setMessagesList(contactRequest.getMessagesList());
+            Log.i("DEBUG:", "size in ca" + contactRequest.getMessagesList().size());
+        }
+
     }
 }
