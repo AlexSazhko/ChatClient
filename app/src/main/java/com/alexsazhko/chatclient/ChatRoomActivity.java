@@ -2,6 +2,7 @@ package com.alexsazhko.chatclient;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,13 +20,13 @@ import com.alexsazhko.chatclient.entity.Contact;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-public class ChatRoomActivity extends AppCompatActivity {
+public class ChatRoomActivity extends AppCompatActivity implements ReceiveMessageCallBack{
 
     Context context;
-    private ListView lvMessageList;
     private EditText etInputMessage;
-    private Button btnSend;
 
     private String name;
     private String toUserName;
@@ -33,36 +34,49 @@ public class ChatRoomActivity extends AppCompatActivity {
     private List<ChatMessage> messagesItems;
     private Contact contact;
     private MessageListAdapter adapter;
+    ListView lvMessageList;
+
+    private ExecutorService threadPool;
+    private ServerConnection serverConnection;
+    private Handler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_room);
         context = getApplicationContext();
+        handler = new Handler();
+
         messagesItems = new ArrayList<ChatMessage>();
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             name = extras.getString("userName");
             contact = extras.getParcelable("contact");
-            //contact = (Contact)extras.getSerializable("contact");
-           // messagesItems = contact.getMessagesList();
-           // Log.i("DEBUG:", "size" + messagesItems.size());
         }
-        initView();
 
+        initView();
+        initServerConnection();
     }
 
     private void initView() {
+        assert getSupportActionBar() != null;
         getSupportActionBar().setTitle(contact.getName());
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_contact);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         etInputMessage = (EditText) findViewById(R.id.etInputMsg);
-        btnSend = (Button) findViewById(R.id.btnSend);
+        Button btnSend = (Button) findViewById(R.id.btnSend);
         btnSend.setOnClickListener(new ButtonListener());
-        lvMessageList = (ListView)findViewById(R.id.lvMessageList);
+         lvMessageList = (ListView)findViewById(R.id.lvMessageList);
         adapter = new MessageListAdapter(messagesItems, context);
         lvMessageList.setAdapter(adapter);
+    }
+
+    private void initServerConnection() {
+        serverConnection = new ServerConnection(context);
+        serverConnection.setCallBack(this);
+        threadPool = Executors.newSingleThreadExecutor();
+        threadPool.submit(serverConnection);
     }
 
     protected void onStart() {
@@ -72,12 +86,10 @@ public class ChatRoomActivity extends AppCompatActivity {
             contact.getMessagesList().clear();
             refreshAdapter();
         }
-
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_chat_room, menu);
         return true;
     }
@@ -95,8 +107,13 @@ public class ChatRoomActivity extends AppCompatActivity {
     }
 
     private void refreshAdapter(){
-
-        adapter.notifyDataSetChanged();
+        adapter = new MessageListAdapter(messagesItems, context);
+        lvMessageList.setAdapter(adapter);
+        //adapter.notifyDataSetChanged();
+        int i = 0;
+        for(ChatMessage msg: messagesItems){
+            Log.i("DEBUG:", "message array " + String.valueOf(i++) + msg.isOwnMessage());
+        }
     }
 
     private class ButtonListener implements View.OnClickListener {
@@ -107,10 +124,18 @@ public class ChatRoomActivity extends AppCompatActivity {
             switch (id) {
                 case R.id.btnSend:
                     if(!String.valueOf(etInputMessage.getText()).isEmpty()) {
-                        messagesItems.add(composeMessage("MESSAGE"));
+                        ChatMessage chatMessage = new ChatMessage();
+                        chatMessage = composeMessage("MESSAGE");
+                        synchronized(this){
+                            messagesItems.add(chatMessage);
+                            //chatMessage.setOwnMessage(false);
+                            serverConnection.setMessageToSend(chatMessage);
+                            //chatMessage.setOwnMessage(true);
+                            refreshAdapter();
+                        }
                         etInputMessage.setText("");
+
                         hideKeyboard();
-                        refreshAdapter();
                     }
                     break;
             }
@@ -122,7 +147,9 @@ public class ChatRoomActivity extends AppCompatActivity {
         chatMsg.setSendTime(System.currentTimeMillis());
         chatMsg.setUserName(name);
         chatMsg.setMsgContent(String.valueOf(etInputMessage.getText()));
+        chatMsg.setMessageFlag(flagMessage);
         chatMsg.setOwnMessage(true);
+        Log.i("DEBUG:", "message i compose " +  chatMsg.isOwnMessage());
         return chatMsg;
     }
 
@@ -135,22 +162,37 @@ public class ChatRoomActivity extends AppCompatActivity {
         }
     }
 
+    public void receiveMessage(final ChatMessage msg)
+    {
+        //final String msg = msg ;
+        handler.post(new Runnable() {
+
+            @Override
+            public void run() {
+
+                synchronized (this){
+                    messagesItems.add(msg);
+                    refreshAdapter();
+                }
+
+                //Log.d("","hi");
+            }
+        });
+
+    }
+
     @Override
     protected void onStop() {
         super.onStop();
-
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-
-
     }
 
     @Override
     public void onBackPressed() {
-        Log.i("DEBUG:", "size" + messagesItems.size());
         contact.setMessagesList(messagesItems);
         Intent resultIntent = new Intent();
         resultIntent.putExtra("contact", contact);

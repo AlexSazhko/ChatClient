@@ -46,6 +46,7 @@ public class ChatMessage implements Parcelable{
     public void setMsgContent(String paramMsgContent) {
         messageContent = paramMsgContent;
     }
+
     public String getUserName() {
         return userName;
     }

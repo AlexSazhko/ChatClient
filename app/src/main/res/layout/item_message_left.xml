@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/llMessageItemLeft"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="5dp"
@@ -18,33 +19,50 @@
             android:layout_height="40dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
+            android:layout_gravity="top"
             android:src="@drawable/ic_contact"
             android:contentDescription="@string/empty"
             android:scaleType="fitXY"/>
 
-        <TextView
-            android:id="@+id/tvMsgContent"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/message_content_text"
-            android:layout_marginRight="80dp"
-            android:textColor="@color/title_gray"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
-            android:background="@drawable/bg_msg_left" />
+            android:orientation="vertical"
+
+            android:layout_marginRight="80dp">
+
+            <TextView
+                android:id="@+id/tvMsgContent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/message_content_text"
+                android:textColor="@color/title_gray"
+                android:background="@drawable/bg_msg_left"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:text = "adsasdasds"/>
+
+            <TextView
+                android:id="@+id/tvMsgTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/message_time_text"
+                android:layout_gravity="end"
+                android:textColor="@color/text_msg_time"
+                android:paddingRight="10dp"
+                android:paddingTop="5dp"
+                android:text = "12:36"/>
+
+
+        </LinearLayout>
+
+
 
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/tvMsgTime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="80dp"
-        android:textSize="@dimen/message_time_text"
-        android:layout_gravity="end"
-        android:textColor="@color/text_msg_time" />
+
 
 </LinearLayout>
