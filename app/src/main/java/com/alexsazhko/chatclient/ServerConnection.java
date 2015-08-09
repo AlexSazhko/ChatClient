@@ -55,7 +55,6 @@ public class ServerConnection implements Runnable{
         Gson gson = new Gson();
         message = gson.toJson(msg);
 
-
         return message;
     }
 
@@ -71,25 +70,19 @@ public class ServerConnection implements Runnable{
                 while (isConnected) {
                     if(dataInputStream.available() > 0) {
                         String receivedMessage = dataInputStream.readUTF();
-                        //Log.i("DEBUG:", getChatMessage(message).getMsgContent());
                         receiveMessageCallBack.receiveMessage(getChatMessage(receivedMessage));
-                        Log.i("DEBUG:", "message is " + getChatMessage(receivedMessage).isOwnMessage());
                     }
-
-                    //Log.i("DEBUG:", "message" + getMessage());
                     if(isMessageRedyToSend){
-                        Log.i("DEBUG:", "messageRedy");
                         dataOutputStream.writeUTF(jsonMessage);
                         dataOutputStream.flush();
 
                         isMessageRedyToSend = false;
                     }
-                    /*try {
-                        Thread.sleep(500);
+                    try {
+                        Thread.sleep(100);
                     } catch (InterruptedException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
-                    }*/
+                    }
                 }
 
             } else {

@@ -17,6 +17,7 @@ import android.widget.ListView;
 import com.alexsazhko.chatclient.adapter.MessageListAdapter;
 import com.alexsazhko.chatclient.entity.ChatMessage;
 import com.alexsazhko.chatclient.entity.Contact;
+import com.alexsazhko.chatclient.entity.MessageState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,10 +53,15 @@ public class ChatRoomActivity extends AppCompatActivity implements ReceiveMessag
         if (extras != null) {
             name = extras.getString("userName");
             contact = extras.getParcelable("contact");
+            toUserName = contact.getName();
         }
 
         initView();
         initServerConnection();
+
+        ChatMessage chatMessage;
+        chatMessage = composeMessage(MessageState.NEW);
+        serverConnection.setMessageToSend(chatMessage);
     }
 
     private void initView() {
@@ -67,7 +73,7 @@ public class ChatRoomActivity extends AppCompatActivity implements ReceiveMessag
         etInputMessage = (EditText) findViewById(R.id.etInputMsg);
         Button btnSend = (Button) findViewById(R.id.btnSend);
         btnSend.setOnClickListener(new ButtonListener());
-         lvMessageList = (ListView)findViewById(R.id.lvMessageList);
+        lvMessageList = (ListView)findViewById(R.id.lvMessageList);
         adapter = new MessageListAdapter(messagesItems, context);
         lvMessageList.setAdapter(adapter);
     }
@@ -81,6 +87,8 @@ public class ChatRoomActivity extends AppCompatActivity implements ReceiveMessag
 
     protected void onStart() {
         super.onStart();
+
+
         if (!contact.getMessagesList().isEmpty()) {
             messagesItems.addAll(contact.getMessagesList());
             contact.getMessagesList().clear();
@@ -107,13 +115,8 @@ public class ChatRoomActivity extends AppCompatActivity implements ReceiveMessag
     }
 
     private void refreshAdapter(){
-        adapter = new MessageListAdapter(messagesItems, context);
-        lvMessageList.setAdapter(adapter);
-        //adapter.notifyDataSetChanged();
-        int i = 0;
-        for(ChatMessage msg: messagesItems){
-            Log.i("DEBUG:", "message array " + String.valueOf(i++) + msg.isOwnMessage());
-        }
+
+        adapter.notifyDataSetChanged();
     }
 
     private class ButtonListener implements View.OnClickListener {
@@ -124,15 +127,11 @@ public class ChatRoomActivity extends AppCompatActivity implements ReceiveMessag
             switch (id) {
                 case R.id.btnSend:
                     if(!String.valueOf(etInputMessage.getText()).isEmpty()) {
-                        ChatMessage chatMessage = new ChatMessage();
-                        chatMessage = composeMessage("MESSAGE");
-                        synchronized(this){
+                        ChatMessage chatMessage;
+                        chatMessage = composeMessage(MessageState.MESSAGE);
                             messagesItems.add(chatMessage);
-                            //chatMessage.setOwnMessage(false);
                             serverConnection.setMessageToSend(chatMessage);
-                            //chatMessage.setOwnMessage(true);
                             refreshAdapter();
-                        }
                         etInputMessage.setText("");
 
                         hideKeyboard();
@@ -142,14 +141,18 @@ public class ChatRoomActivity extends AppCompatActivity implements ReceiveMessag
         }
     }
 
-    private ChatMessage composeMessage(String flagMessage){
+    private ChatMessage composeMessage(MessageState messageState){
         ChatMessage chatMsg = new ChatMessage();
+        String messageContent = String.valueOf(etInputMessage.getText());
+
         chatMsg.setSendTime(System.currentTimeMillis());
         chatMsg.setUserName(name);
-        chatMsg.setMsgContent(String.valueOf(etInputMessage.getText()));
-        chatMsg.setMessageFlag(flagMessage);
+        chatMsg.setToUserName(toUserName);
+        if(!messageContent.equals(""))
+            chatMsg.setMsgContent(messageContent);
+        chatMsg.setMessageFlag(messageState.name());
         chatMsg.setOwnMessage(true);
-        Log.i("DEBUG:", "message i compose " +  chatMsg.isOwnMessage());
+
         return chatMsg;
     }
 
@@ -169,9 +172,10 @@ public class ChatRoomActivity extends AppCompatActivity implements ReceiveMessag
 
             @Override
             public void run() {
-
+                Log.i("DEBUG:", "message in handler: " + msg.getMsgContent());
                 synchronized (this){
-                    messagesItems.add(msg);
+
+                            messagesItems.add(msg);
                     refreshAdapter();
                 }
 
@@ -197,6 +201,7 @@ public class ChatRoomActivity extends AppCompatActivity implements ReceiveMessag
         Intent resultIntent = new Intent();
         resultIntent.putExtra("contact", contact);
         setResult(RESULT_OK, resultIntent);
+        serverConnection.setMessageToSend(composeMessage(MessageState.END));
         this.finish();
         super.onBackPressed();
     }

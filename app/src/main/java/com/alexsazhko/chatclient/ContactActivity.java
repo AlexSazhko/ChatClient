@@ -107,7 +107,6 @@ public class ContactActivity extends AppCompatActivity {
         if(resultCode == RESULT_OK) {
             Contact contactRequest = (Contact)data.getExtras().getParcelable("contact");
             contacts.get(requestCode).setMessagesList(contactRequest.getMessagesList());
-            Log.i("DEBUG:", "size in ca" + contactRequest.getMessagesList().size());
         }
 
     }
