@@ -15,6 +15,7 @@ import android.widget.ListView;
 
 import com.alexsazhko.chatclient.adapter.ContactListAdapter;
 import com.alexsazhko.chatclient.entity.Contact;
+import com.alexsazhko.chatclient.preference.PrefActivity;
 
 import java.util.ArrayList;
 
@@ -83,6 +84,10 @@ public class ContactActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            if (id == R.id.action_settings) {
+                Intent intent = new Intent(this, PrefActivity.class);
+                startActivity(intent);
+            }
             return true;
         }
 

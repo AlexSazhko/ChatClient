@@ -8,7 +8,30 @@
     <string name="btn_join">JOIN</string>
     <string name="btn_send">Send</string>
     <string name="title_activity_contact">ContactActivity</string>
+    <string name="title_activity_pref">Preference</string>
 
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_chat_room">ChatRoomActivity</string>
+    <string name="pref_category_title_network">Network</string>
+    <string name="pref_category_title_account">Account</string>
+
+    <string name="set_chat_server">Set chat server</string>
+    <string name="chat_server_title">Set chat server</string>
+    <string name="chat_server_key">chatserver</string>
+    <string name="summary_url_server">Set chat server</string>
+
+    <string name="set_account">Set account</string>
+    <string name="set_account_title">Set account</string>
+    <string name="account_key">account</string>
+    <string name="account_server">Set account</string>
+
+    <string name="enter_ip_adress">Enter IP adress</string>
+    <string name="enter_port">Enter port</string>
+    <string name="send">Send</string>
+    <string name="set">Set</string>
+    <string name="set_server_adress">Server adress</string>
+
+    <string name="enter_login">Login</string>
+    <string name="enter_password">Password</string>
+
 </resources>

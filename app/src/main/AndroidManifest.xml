@@ -26,6 +26,10 @@
             android:name=".ChatRoomActivity"
             android:label="@string/title_activity_chat_room" >
         </activity>
+        <activity
+            android:name=".preference.PrefActivity"
+            android:label="@string/title_activity_chat_room" >
+        </activity>
     </application>
 
 </manifest>

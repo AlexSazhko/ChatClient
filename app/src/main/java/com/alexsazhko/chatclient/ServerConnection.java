@@ -39,7 +39,6 @@ public class ServerConnection implements Runnable{
         loadPreference();
         isConnected = true;
         isMessageRedyToSend = false;
-        //message = "";
     }
 
     private void loadPreference(){
@@ -47,15 +46,6 @@ public class ServerConnection implements Runnable{
 
         adress = preferences.getString("adress", "192.168.1.37");
         port = Integer.valueOf(preferences.getString("port", "6060"));
-    }
-
-    public String getJsonMessage(ChatMessage msg){
-        String message = "";
-
-        Gson gson = new Gson();
-        message = gson.toJson(msg);
-
-        return message;
     }
 
     @Override
@@ -119,7 +109,7 @@ public class ServerConnection implements Runnable{
                     e.printStackTrace();
                 }
             }
-        } //End of fi
+        } //End of finally
 
     }
 
