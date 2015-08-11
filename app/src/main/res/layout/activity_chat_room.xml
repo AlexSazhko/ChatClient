@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     android:orientation="vertical"
-    tools:context="com.alexsazhko.chatclient.ChatRoomActivity">
+    tools:context="com.alexsazhko.chatclient.ui.ChatRoomActivity">
 
     <ListView
         android:id="@+id/lvMessageList"

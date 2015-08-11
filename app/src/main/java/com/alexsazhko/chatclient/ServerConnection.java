@@ -17,10 +17,11 @@ import java.net.UnknownHostException;
 
 public class ServerConnection implements Runnable{
 
+    private static Context context = ChatApplication.getInstance();
+
     private String jsonMessage;
     private String adress;
     private int port;
-    private Context context;
     private ReceiveMessageCallBack receiveMessageCallBack;
 
 
@@ -31,8 +32,7 @@ public class ServerConnection implements Runnable{
     private boolean isConnected;
     private boolean isMessageRedyToSend;
 
-    ServerConnection(Context context){
-        this.context = context;
+    public ServerConnection(){
         loadPreference();
         isConnected = true;
         isMessageRedyToSend = false;

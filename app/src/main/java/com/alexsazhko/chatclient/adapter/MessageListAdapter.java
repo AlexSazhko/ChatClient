@@ -3,7 +3,6 @@ package com.alexsazhko.chatclient.adapter;
 
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.alexsazhko.chatclient.R;
-import com.alexsazhko.chatclient.Utils;
+import com.alexsazhko.chatclient.utils.Utils;
 import com.alexsazhko.chatclient.entity.ChatMessage;
 
 import java.util.List;
@@ -90,7 +89,7 @@ public class MessageListAdapter extends BaseAdapter{
 
         vh.msgContent.setText(data.get(position).getMsgContent());
         vh.msgTime.setText(Utils.getShortestTimeFormat(data.get(position).getSendTime()));
-        vh.image.setImageResource(Utils.getImageId("ic_contact.png", context));
+        vh.image.setImageResource(Utils.getImageId("ic_contact.png"));
         vh.image.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_contact));
 
         return convertView;

@@ -10,7 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.alexsazhko.chatclient.R;
-import com.alexsazhko.chatclient.Utils;
+import com.alexsazhko.chatclient.utils.Utils;
 import com.alexsazhko.chatclient.entity.Contact;
 
 import java.util.ArrayList;
@@ -60,7 +60,7 @@ public class ContactListAdapter extends BaseAdapter{
         ViewHolder vh = (ViewHolder) convertView.getTag();
 
         vh.text.setText(data.get(position).getName());
-        vh.image.setImageResource(Utils.getImageId("ic_contact.png", context));
+        vh.image.setImageResource(Utils.getImageId("ic_contact.png"));
         //vh.image.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_contact));
 
         return convertView;

@@ -34,4 +34,6 @@
     <string name="enter_login">Login</string>
     <string name="enter_password">Password</string>
 
+    <string name="message_no_network">Enable WiFi or Network connections</string>
+
 </resources>
