@@ -9,8 +9,6 @@ import android.util.Log;
 import com.alexsazhko.chatclient.entity.ChatMessage;
 import com.google.gson.Gson;
 
-import org.json.JSONObject;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -23,7 +21,6 @@ public class ServerConnection implements Runnable{
     private String adress;
     private int port;
     private Context context;
-    private ChatMessage message;
     private ReceiveMessageCallBack receiveMessageCallBack;
 
 

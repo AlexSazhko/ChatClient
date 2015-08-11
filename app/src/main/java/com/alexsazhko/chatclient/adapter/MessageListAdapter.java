@@ -2,13 +2,13 @@ package com.alexsazhko.chatclient.adapter;
 
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.alexsazhko.chatclient.R;
@@ -18,6 +18,10 @@ import com.alexsazhko.chatclient.entity.ChatMessage;
 import java.util.List;
 
 public class MessageListAdapter extends BaseAdapter{
+
+    private static final int TYPE_LEFT = 0;
+    private static final int TYPE_RIGHT = 1;
+    private static final int TYPE_MAX_COUNT = TYPE_RIGHT + 1;
 
     private List<ChatMessage> data;
     private Context context;
@@ -42,72 +46,62 @@ public class MessageListAdapter extends BaseAdapter{
     }
 
     @Override
+    public int getItemViewType(int position) {
+        return data.get(position).isOwnMessage() ? TYPE_RIGHT  : TYPE_LEFT;
+    }
+
+    @Override
+    public int getViewTypeCount() {
+        return TYPE_MAX_COUNT;
+    }
+
+    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        LinearLayout messageContainer;
-         final ChatMessage chatMessage = (ChatMessage) getItem(position);
 
         ViewHolder vh = null;
-       // if (convertView == null) {
+        int type = getItemViewType(position);
+
+        if (convertView == null) {
             vh = new ViewHolder();
-            Log.i("DEBUG:", "message in adapter is " + chatMessage.getMsgContent() + " " + chatMessage.isOwnMessage());
-            if(!chatMessage.isOwnMessage()) {
-                convertView = LayoutInflater.from(context).inflate(
-                        R.layout.item_message_left, parent, false);
-               /* vh.messageContainer = (LinearLayout) convertView.findViewById(R.id.llMessageItemLeft);
-                vh.msgContent = (TextView) convertView.findViewById(R.id.tvMsgContent);
-                vh.msgTime = (TextView) convertView.findViewById(R.id.tvMsgTime);
-                vh.image = (ImageView) convertView.findViewById(R.id.ivPicture);*/
-            }else{
+            switch (type) {
+                case TYPE_LEFT:
+                    convertView = LayoutInflater.from(context).inflate(
+                            R.layout.item_message_left, parent, false);
+
+                    vh.msgContent = (TextView) convertView.findViewById(R.id.tvMsgContent);
+                    vh.msgTime = (TextView) convertView.findViewById(R.id.tvMsgTime);
+                    vh.image = (ImageView) convertView.findViewById(R.id.ivPicture);
+                    break;
+                case TYPE_RIGHT:
                 convertView = LayoutInflater.from(context).inflate(
                         R.layout.item_message_right, parent, false);
-               /* vh.messageContainer = (LinearLayout) convertView.findViewById(R.id.llMessageItemRight);
-                vh.msgContent = (TextView) convertView.findViewById(R.id.tvMsgContent);
-                vh.msgTime = (TextView) convertView.findViewById(R.id.tvMsgTime);
-                vh.image = (ImageView) convertView.findViewById(R.id.ivPicture);*/
+
+                    vh.msgContent = (TextView) convertView.findViewById(R.id.tvMsgContent);
+                    vh.msgTime = (TextView) convertView.findViewById(R.id.tvMsgTime);
+                    vh.image = (ImageView) convertView.findViewById(R.id.ivPicture);
+                    break;
             }
 
-           /* TextView msgContent = (TextView) convertView.findViewById(R.id.tvMsgContent);
-            TextView msgTime = (TextView) convertView.findViewById(R.id.tvMsgTime);
-            ImageView image = (ImageView) convertView.findViewById(R.id.ivPicture);*/
+           convertView.setTag(vh);
 
-            //ViewHolder vh = new ViewHolder(messageContainer, msgContent, msgTime, image);
+        }else{
+            vh = (ViewHolder) convertView.getTag();
+        }
 
-           // convertView.setTag(vh);
-
-      //  }
-
-        //ViewHolder vh = (ViewHolder) convertView.getTag();
-        //vh = (ViewHolder) convertView.getTag();
-
-       /* vh.msgContent.setText(data.get(position).getMsgContent());
+        vh.msgContent.setText(data.get(position).getMsgContent());
         vh.msgTime.setText(Utils.getShortestTimeFormat(data.get(position).getSendTime()));
-        vh.image.setImageResource(Utils.getImageId("ic_contact.png", context));*/
-        //vh.image.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_contact));
-        TextView msgContent = (TextView) convertView.findViewById(R.id.tvMsgContent);
-        TextView msgTime = (TextView) convertView.findViewById(R.id.tvMsgTime);
-        ImageView image = (ImageView) convertView.findViewById(R.id.ivPicture);
-        msgContent.setText(data.get(position).getMsgContent());
-        msgTime.setText(Utils.getShortestTimeFormat(data.get(position).getSendTime()));
-        image.setImageResource(Utils.getImageId("ic_contact.png", context));
+        vh.image.setImageResource(Utils.getImageId("ic_contact.png", context));
+        vh.image.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_contact));
 
         return convertView;
     }
 
     private class ViewHolder{
-        public LinearLayout messageContainer;
         public TextView msgContent;
         public TextView msgTime;
         public ImageView image;
 
         public ViewHolder(){}
-
-        public ViewHolder (LinearLayout messageContainer, TextView msgContent, TextView msgTime, ImageView image){
-            this.messageContainer = messageContainer;
-            this.msgContent = msgContent;
-            this.msgTime = msgTime;
-            this.image = image;
-        }
-
 
     }
 }
