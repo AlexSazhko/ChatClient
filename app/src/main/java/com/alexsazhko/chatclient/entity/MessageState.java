@@ -4,7 +4,8 @@ public enum MessageState {
 
     NEW(0),
     MESSAGE(1),
-    END(2);
+    END(2),
+    SEARCH(3);
 
     private final int state;
 

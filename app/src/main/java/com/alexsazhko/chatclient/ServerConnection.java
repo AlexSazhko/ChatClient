@@ -7,6 +7,9 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.alexsazhko.chatclient.entity.ChatMessage;
+import com.alexsazhko.chatclient.entity.MessageState;
+import com.alexsazhko.chatclient.ui.AddContactActivity;
+import com.alexsazhko.chatclient.ui.ChatRoomActivity;
 import com.google.gson.Gson;
 
 import java.io.DataInputStream;
@@ -14,8 +17,11 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.List;
 
 public class ServerConnection implements Runnable{
+
+    private static volatile ServerConnection instance;
 
     private static Context context = ChatApplication.getInstance();
 
@@ -32,12 +38,28 @@ public class ServerConnection implements Runnable{
     private boolean isConnected;
     private boolean isMessageRedyToSend;
 
-    public ServerConnection(){
+    private ServerConnection(){
         loadPreference();
         isConnected = true;
         isMessageRedyToSend = false;
     }
 
+    public static ServerConnection getInstance(){
+        ServerConnection localInstance = instance;
+        if (localInstance == null) {
+            synchronized (ServerConnection.class) {
+                localInstance = instance;
+                if (localInstance == null) {
+                    instance = localInstance = new ServerConnection();
+                }
+            }
+        }
+        return localInstance;
+    }
+
+    public void start(){
+
+    }
     private void loadPreference(){
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
@@ -57,7 +79,14 @@ public class ServerConnection implements Runnable{
                 while (isConnected) {
                     if(dataInputStream.available() > 0) {
                         String receivedMessage = dataInputStream.readUTF();
-                        receiveMessageCallBack.receiveMessage(getChatMessage(receivedMessage));
+                        MessageState state = MessageState.valueOf(getChatMessage(receivedMessage).getMessageFlag());
+                       if( state == MessageState.SEARCH & (receiveMessageCallBack instanceof AddContactActivity)){
+                           receiveMessageCallBack.receiveMessage(getChatMessage(receivedMessage));
+                       }
+                        if (state == MessageState.MESSAGE & (receiveMessageCallBack instanceof ChatRoomActivity)) {
+                            receiveMessageCallBack.receiveMessage(getChatMessage(receivedMessage));
+                       }
+
                     }
                     if(isMessageRedyToSend){
                         dataOutputStream.writeUTF(jsonMessage);

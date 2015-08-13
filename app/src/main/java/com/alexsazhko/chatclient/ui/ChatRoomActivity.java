@@ -38,7 +38,7 @@ public class ChatRoomActivity extends AppCompatActivity implements ReceiveMessag
     private List<ChatMessage> messagesItems;
     private Contact contact;
     private MessageListAdapter adapter;
-    ListView lvMessageList;
+    private ListView lvMessageList;
 
     private ExecutorService threadPool;
     private ServerConnection serverConnection;
@@ -62,9 +62,9 @@ public class ChatRoomActivity extends AppCompatActivity implements ReceiveMessag
         initView();
         initServerConnection();
 
-        ChatMessage chatMessage;
+        /*ChatMessage chatMessage;
         chatMessage = composeMessage(MessageState.NEW);
-        serverConnection.setMessageToSend(chatMessage);
+        serverConnection.setMessageToSend(chatMessage);*/
     }
 
     private void initView() {
@@ -82,10 +82,10 @@ public class ChatRoomActivity extends AppCompatActivity implements ReceiveMessag
     }
 
     private void initServerConnection() {
-        serverConnection = new ServerConnection();
+        serverConnection = ServerConnection.getInstance();
         serverConnection.setCallBack(this);
-        threadPool = Executors.newSingleThreadExecutor();
-        threadPool.submit(serverConnection);
+        //threadPool = Executors.newSingleThreadExecutor();
+        //threadPool.submit(serverConnection);
     }
 
     protected void onStart() {
@@ -204,7 +204,7 @@ public class ChatRoomActivity extends AppCompatActivity implements ReceiveMessag
         Intent resultIntent = new Intent();
         resultIntent.putExtra("contact", contact);
         setResult(RESULT_OK, resultIntent);
-        serverConnection.setMessageToSend(composeMessage(MessageState.END));
+        //serverConnection.setMessageToSend(composeMessage(MessageState.END));
         this.finish();
         super.onBackPressed();
     }

@@ -13,24 +13,35 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.alexsazhko.chatclient.R;
+import com.alexsazhko.chatclient.ReceiveMessageCallBack;
+import com.alexsazhko.chatclient.ServerConnection;
 import com.alexsazhko.chatclient.adapter.ContactListAdapter;
+import com.alexsazhko.chatclient.entity.ChatMessage;
 import com.alexsazhko.chatclient.entity.Contact;
+import com.alexsazhko.chatclient.entity.MessageState;
 import com.alexsazhko.chatclient.preference.PrefActivity;
 import com.alexsazhko.chatclient.utils.NetworkUtils;
 import com.alexsazhko.chatclient.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-public class ContactActivity extends AppCompatActivity {
+public class ContactActivity extends AppCompatActivity implements ReceiveMessageCallBack {
 
     //final int REQUEST_CODE_ADD_CONVERS = 1;
+    final int REQUEST_CODE_CHAT = 1;
+    final int REQUEST_CODE_ADD_CONTACT = 2;
 
     Context context;
     private String name;
     private ListView lvContactList;
-    private ContactListAdapter contactAdapter;
     private ArrayList<Contact> contacts;
     private int contactPosition;
+    ContactListAdapter contactAdapter;
+
+    private ExecutorService threadPool;
+    private ServerConnection serverConnection;
 
 
     @Override
@@ -42,6 +53,11 @@ public class ContactActivity extends AppCompatActivity {
         initPreference();
         initView();
         initAdapter();
+        initServerConnection();
+
+        ChatMessage chatMessage;
+        chatMessage = composeMessage(MessageState.NEW);
+        serverConnection.setMessageToSend(chatMessage);
     }
 
     private void initContactList() {
@@ -72,6 +88,17 @@ public class ContactActivity extends AppCompatActivity {
         lvContactList.setAdapter(contactAdapter);
     }
 
+    private void refreshAdapter(){
+
+        contactAdapter.notifyDataSetChanged();
+    }
+
+    private void initServerConnection(){
+        serverConnection = ServerConnection.getInstance();
+        serverConnection.setCallBack(this);
+        threadPool = Executors.newSingleThreadExecutor();
+        threadPool.submit(serverConnection);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -84,41 +111,77 @@ public class ContactActivity extends AppCompatActivity {
 
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
             if (id == R.id.action_settings) {
                 Intent intent = new Intent(this, PrefActivity.class);
                 startActivity(intent);
+                return true;
             }
-            return true;
-        }
+
+            if (id == R.id.action_add_contact) {
+                Intent intent = new Intent(this, AddContactActivity.class);
+                startActivityForResult(intent, REQUEST_CODE_ADD_CONTACT);
+                return true;
+            }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void receiveMessage(ChatMessage message) {
+
     }
 
     private class ListListener implements AdapterView.OnItemClickListener {
 
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            if(NetworkUtils.isOnline() | (NetworkUtils.isWiFiEnabled() && NetworkUtils.isWifiConnect()) ) {
+            //if(NetworkUtils.isOnline() | (NetworkUtils.isWiFiEnabled() && NetworkUtils.isWifiConnect()) ) {
                 Contact contact = contacts.get(position);
                 contactPosition = position;
                 Intent intent = new Intent(ContactActivity.this, ChatRoomActivity.class);
                 intent.putExtra("userName", name);
                 intent.putExtra("contact", contact);
-                startActivityForResult(intent, contactPosition);
-            }else{
+                startActivityForResult(intent, REQUEST_CODE_CHAT);
+            /*}else{
                 Utils.showShortToast(R.string.message_no_network);
-            }
+            }*/
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(resultCode == RESULT_OK) {
-            Contact contactRequest = (Contact)data.getExtras().getParcelable("contact");
-            contacts.get(requestCode).setMessagesList(contactRequest.getMessagesList());
+            switch (requestCode){
+                case REQUEST_CODE_CHAT:
+                    Contact contactRequest = (Contact)data.getExtras().getParcelable("contact");
+                    contacts.get(requestCode).setMessagesList(contactRequest.getMessagesList());
+                    break;
+                case REQUEST_CODE_ADD_CONTACT:
+                    Contact addedContact = (Contact)data.getExtras().getParcelable("contact");
+                    contacts.add(addedContact);
+                    refreshAdapter();
+                    break;
+            }
+
         }
 
+    }
+
+    private ChatMessage composeMessage(MessageState messageState){
+        ChatMessage chatMsg = new ChatMessage();;
+
+        chatMsg.setSendTime(System.currentTimeMillis());
+        chatMsg.setUserName(name);
+        chatMsg.setMessageFlag(messageState.name());
+        chatMsg.setOwnMessage(true);
+
+        return chatMsg;
+    }
+
+    @Override
+    public void onBackPressed() {
+        serverConnection.setMessageToSend(composeMessage(MessageState.END));
+        this.finish();
+        super.onBackPressed();
     }
 }

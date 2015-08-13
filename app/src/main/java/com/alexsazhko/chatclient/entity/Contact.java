@@ -13,6 +13,10 @@ public class Contact implements Parcelable {
     private String pictureName;
     private List<ChatMessage> messagesList;
 
+    public Contact(){
+        messagesList = new ArrayList<ChatMessage>();
+    }
+
     public Contact(int id, String name){
         this.name = name;
         this.id = id;

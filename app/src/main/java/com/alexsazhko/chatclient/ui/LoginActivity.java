@@ -53,7 +53,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void initPreference() {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        name = preferences.getString("name", "");
+        name = preferences.getString("name", "John");
         etName.setText(name);
         editor = preferences.edit();
     }
