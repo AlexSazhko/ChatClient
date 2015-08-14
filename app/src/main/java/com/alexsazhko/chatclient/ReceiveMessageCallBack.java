@@ -5,5 +5,5 @@ import com.alexsazhko.chatclient.entity.ChatMessage;
 
 public interface ReceiveMessageCallBack {
 
-    void receiveMessage(ChatMessage message);
+    void receiveMessage(BaseMessage message);
 }

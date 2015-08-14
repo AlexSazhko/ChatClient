@@ -10,6 +10,7 @@ import com.alexsazhko.chatclient.entity.ChatMessage;
 import com.alexsazhko.chatclient.entity.MessageState;
 import com.alexsazhko.chatclient.ui.AddContactActivity;
 import com.alexsazhko.chatclient.ui.ChatRoomActivity;
+import com.alexsazhko.chatclient.utils.MessageFactory;
 import com.google.gson.Gson;
 
 import java.io.DataInputStream;
@@ -79,13 +80,23 @@ public class ServerConnection implements Runnable{
                 while (isConnected) {
                     if(dataInputStream.available() > 0) {
                         String receivedMessage = dataInputStream.readUTF();
-                        MessageState state = MessageState.valueOf(getChatMessage(receivedMessage).getMessageFlag());
+                       /* MessageState state = MessageState.valueOf(getChatMessage(receivedMessage).getMessageFlag());
                        if( state == MessageState.SEARCH & (receiveMessageCallBack instanceof AddContactActivity)){
                            receiveMessageCallBack.receiveMessage(getChatMessage(receivedMessage));
                        }
                         if (state == MessageState.MESSAGE & (receiveMessageCallBack instanceof ChatRoomActivity)) {
                             receiveMessageCallBack.receiveMessage(getChatMessage(receivedMessage));
-                       }
+                       }*/
+                        MessageState state = MessageState.valueOf(getChatMessage(receivedMessage).getMessageFlag());
+                        BaseMessage baseMessage = MessageFactory.getMessage(receivedMessage);
+                        if(baseMessage != null) {
+                            if (state == MessageState.SEARCH & (receiveMessageCallBack instanceof AddContactActivity)) {
+                                receiveMessageCallBack.receiveMessage(MessageFactory.getMessage(receivedMessage));
+                            }
+                            if (state == MessageState.MESSAGE & (receiveMessageCallBack instanceof ChatRoomActivity)) {
+                                receiveMessageCallBack.receiveMessage(MessageFactory.getMessage(receivedMessage));
+                            }
+                        }
 
                     }
                     if(isMessageRedyToSend){
@@ -140,9 +151,9 @@ public class ServerConnection implements Runnable{
     }
 
     //It will be called from ChatRoomActivity
-    public void setMessageToSend(ChatMessage msg){
+    public void setMessageToSend(BaseMessage baseMessage){
         Gson gson = new Gson();
-        jsonMessage = gson.toJson(msg);
+        jsonMessage = gson.toJson(baseMessage);
         isMessageRedyToSend = true;
     }
 

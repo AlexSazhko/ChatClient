@@ -4,7 +4,9 @@ package com.alexsazhko.chatclient.entity;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class ChatMessage implements Parcelable{
+import com.alexsazhko.chatclient.BaseMessage;
+
+public class ChatMessage implements Parcelable, BaseMessage{
 
     private long sendTime;
     private String messageContent;

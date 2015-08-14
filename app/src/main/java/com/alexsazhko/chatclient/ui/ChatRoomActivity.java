@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import com.alexsazhko.chatclient.BaseMessage;
 import com.alexsazhko.chatclient.R;
 import com.alexsazhko.chatclient.ReceiveMessageCallBack;
 import com.alexsazhko.chatclient.ServerConnection;
@@ -168,21 +169,19 @@ public class ChatRoomActivity extends AppCompatActivity implements ReceiveMessag
         }
     }
 
-    public void receiveMessage(final ChatMessage msg)
+    public void receiveMessage(final BaseMessage msg)
     {
         //final String msg = msg ;
         handler.post(new Runnable() {
 
             @Override
             public void run() {
-                Log.i("DEBUG:", "message in handler: " + msg.getMsgContent());
                 synchronized (this){
 
-                            messagesItems.add(msg);
+                            messagesItems.add((ChatMessage)msg);
                     refreshAdapter();
                 }
 
-                //Log.d("","hi");
             }
         });
 

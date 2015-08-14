@@ -6,18 +6,21 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.alexsazhko.chatclient.BaseMessage;
 import com.alexsazhko.chatclient.R;
 import com.alexsazhko.chatclient.ReceiveMessageCallBack;
 import com.alexsazhko.chatclient.ServerConnection;
 import com.alexsazhko.chatclient.adapter.ContactListAdapter;
 import com.alexsazhko.chatclient.entity.ChatMessage;
 import com.alexsazhko.chatclient.entity.Contact;
+import com.alexsazhko.chatclient.entity.ContactNew;
 import com.alexsazhko.chatclient.entity.MessageState;
 import com.alexsazhko.chatclient.preference.PrefActivity;
 import com.alexsazhko.chatclient.utils.NetworkUtils;
@@ -55,9 +58,11 @@ public class ContactActivity extends AppCompatActivity implements ReceiveMessage
         initAdapter();
         initServerConnection();
 
-        ChatMessage chatMessage;
-        chatMessage = composeMessage(MessageState.NEW);
-        serverConnection.setMessageToSend(chatMessage);
+        ContactNew contactNew = new ContactNew();
+        Contact contact = new Contact();
+        contact.setName(name);
+        contactNew.setContact(contact);
+        serverConnection.setMessageToSend(contactNew);
     }
 
     private void initContactList() {
@@ -126,8 +131,7 @@ public class ContactActivity extends AppCompatActivity implements ReceiveMessage
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void receiveMessage(ChatMessage message) {
+    public void receiveMessage(BaseMessage message) {
 
     }
 

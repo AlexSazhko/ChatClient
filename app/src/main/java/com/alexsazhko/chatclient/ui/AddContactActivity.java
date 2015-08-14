@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
+import com.alexsazhko.chatclient.BaseMessage;
 import com.alexsazhko.chatclient.R;
 import com.alexsazhko.chatclient.ReceiveMessageCallBack;
 import com.alexsazhko.chatclient.ServerConnection;
@@ -24,6 +25,7 @@ import com.alexsazhko.chatclient.adapter.AddContactListAdapter;
 import com.alexsazhko.chatclient.adapter.MessageListAdapter;
 import com.alexsazhko.chatclient.entity.ChatMessage;
 import com.alexsazhko.chatclient.entity.Contact;
+import com.alexsazhko.chatclient.entity.ContactList;
 import com.alexsazhko.chatclient.entity.MessageState;
 
 import java.util.ArrayList;
@@ -131,26 +133,15 @@ public class AddContactActivity extends AppCompatActivity implements ReceiveMess
 
 
     @Override
-    public void receiveMessage(final ChatMessage message) {
+    public void receiveMessage(final BaseMessage message) {
         handler.post(new Runnable() {
 
             @Override
             public void run() {
-                //Log.i("DEBUG:", "message in handler: " + msg.getMsgContent());
-                //synchronized (this){
+                ContactList contactList = (ContactList)message;
+                contacts.addAll(contactList.getClients());
+                adapter.notifyDataSetChanged();
 
-                String name = message.getMsgContent();
-                if(!name.equals("")){
-                    Log.i("DEBUG:", "find name: " + name);
-                    Contact contact = new Contact();
-                    contact.setName(name);
-                    contacts.add(contact);
-
-                    adapter.notifyDataSetChanged();
-                }
-                //}
-
-                //Log.d("","hi");
             }
         });
 
